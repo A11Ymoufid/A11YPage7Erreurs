@@ -274,6 +274,8 @@ body .home form .form-group button {
   border-radius: 5px;
   font-weight: 500;
   font-size: 1rem;
+  outline: none;
+  cursor: pointer;
   /* margin-top: 0.75rem; */
 }
 
@@ -504,63 +506,4 @@ code {
   margin-left: 1rem;
 }
 
-/* Animation pulsante pour les cercles */
-.animated-circle {
-  animation: pulse 2s infinite;
-}
 
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    fill: #ffffff;
-  }
-  50% {
-    transform: scale(1.2);
-    fill: #ffc0cb;
-  }
-  100% {
-    transform: scale(1);
-    fill: #ffffff;
-  }
-}
-
-/* Animation de translation pour les lignes */
-.animated-line {
-  animation: line-move 2s infinite;
-}
-
-@keyframes line-move {
-  0% {
-    stroke-dasharray: 0, 100;
-  }
-  50% {
-    stroke-dasharray: 50, 50;
-  }
-  100% {
-    stroke-dasharray: 0, 100;
-  }
-}
-
-/* Animation de changement de couleur pour le contour du téléphone */
-.animated-path {
-  animation: color-change 2s infinite;
-}
-
-@keyframes color-change {
-  0% {
-    stroke: #000000;
-  }
-  50% {
-    stroke: #ff0000;
-  }
-  100% {
-    stroke: #000000;
-  }
-}
-
-#svg {
-  max-width: 2.5rem;
-  max-height: 2.5rem;
-  /* margin-left: 0.5rem; */
-  margin-right: 0.5rem;
-}

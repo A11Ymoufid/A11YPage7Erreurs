@@ -1,96 +1,77 @@
 (function () {
   'use strict';
 
-  // Fonction pour gérer le menu de navigation mobile
-  function initMobileNavigation() {
-    const mobileNavBtn = document.getElementById("mobile-nav-btn");
-    const mobileNav = document.getElementById("mobile-nav");
-    
-    if (mobileNavBtn && mobileNav) {
-      mobileNavBtn.addEventListener("click", function () {
-        mobileNav.classList.toggle("active");
-        toggleExpanded(mobileNavBtn);
-      });
-      
-      mobileNavBtn.setAttribute("tabindex", "0");
-      
-      mobileNavBtn.addEventListener("keydown", function (event) {
-        if (event.key === "Enter" || event.key === " ") {
-          mobileNavBtn.click();
-          event.preventDefault();
-        }
-      });
-    }
-  }
+  let priorFocus;
+  const modal = document.querySelector('.modal__body');
+  const modalLabel = document.querySelector('#modal__label');
+  const modalOverlay = document.querySelector('.modal__overlay');
+  const modalToggle = document.querySelector('.modal-toggle');
+  modalToggle.addEventListener('click', openModal);
 
-  // Fonction pour gérer l'affichage/masquage du contenu
-  function initToggleContent() {
-    const button = document.getElementById('toggleButton');
-    const content = document.getElementById('content');
-    
-    if (button && content) {
-      button.addEventListener("click", function () {
-        toggleExpanded(button);
-        content.style.display = content.style.display === 'block' ? 'none' : 'block';
-      });
-      
-      button.setAttribute("tabindex", "0");
-      
-      button.addEventListener("keydown", function (event) {
-        if (event.key === "Enter" || event.key === " ") {
-          button.click();
-          event.preventDefault();
-        }
-      });
-    }
-  }
+  function openModal() {
+    // Track the element (likely a button) that had focus before we open the modal.
+    priorFocus = document.activeElement;
+    const modalClose = modal.querySelector('.modal__close');
 
-  // Fonction pour gérer la modale
-  function initModal() {
-    const modalToggle = document.querySelector('.modal-toggle');
-    
-    if (modalToggle) {
-      modalToggle.addEventListener('click', openModal);
-    }
+    // Set up the event listeners we need for the modal
+    modal.addEventListener('keydown', keydownEvent);
+    modalOverlay.addEventListener('click', closeModal);
+    modalClose.addEventListener('click', closeModal);
 
-    function openModal() {
-      const modal = document.querySelector('.modal__body');
-      const modalOverlay = document.querySelector('.modal__overlay');
-      const modalClose = modal.querySelector('.modal__close');
-      
-      if (modal && modalOverlay && modalClose) {
-        modal.addEventListener('keydown', keydownEvent);
-        modalOverlay.addEventListener('click', closeModal);
-        modalClose.addEventListener('click', closeModal);
-        
-        modal.style.display = 'block';
-        modalOverlay.style.display = 'block';
-        
-        modal.focus();
-      }
-    }
+    // Find all focusable children
+    const focusableElementsString =
+      'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex="0"], [contenteditable]';
+    let focusableElements = modal.querySelectorAll(focusableElementsString);
+    focusableElements = Array.prototype.slice.call(focusableElements);
 
-    function closeModal() {
-      const modal = document.querySelector('.modal__body');
-      const modalOverlay = document.querySelector('.modal__overlay');
-      
-      if (modal && modalOverlay) {
-        modal.style.display = 'none';
-        modalOverlay.style.display = 'none';
-      }
-    }
+    const firstTabStop = focusableElements[0];
+    const lastTabStop = focusableElements[focusableElements.length - 1];
+
+    // Show the modal and overlay
+    modal.style.display = 'block';
+    modalOverlay.style.display = 'block';
+
+    modalLabel.focus();
 
     function keydownEvent(e) {
+      // Escape key should close the modal
       if (e.key === 'Escape') {
         closeModal();
       }
+
+      // Tab key check for first or last tab stop
+      if (e.key === 'Tab') {
+        // Tab + Shift (reverse tabbing)
+        if (e.shiftKey) {
+          // If the current item is the first tab stop, or it shares a name with it (for example a set of radio buttons)
+          if (
+            document.activeElement === firstTabStop ||
+            (document.activeElement.name !== '' &&
+              document.activeElement.name === firstTabStop.name)
+          ) {
+            e.preventDefault();
+            lastTabStop.focus();
+          }
+        } else if (document.activeElement === lastTabStop) {
+          e.preventDefault();
+          firstTabStop.focus();
+        }
+      }
     }
   }
 
-  // Fonction utilitaire pour basculer l'attribut aria-expanded
-  function toggleExpanded(element) {
-    const isExpanded = element.getAttribute('aria-expanded') === 'true';
-    element.setAttribute('aria-expanded', String(!isExpanded));
+  function closeModal() {
+    const modal = document.querySelector('.modal__body');
+    const modalOverlay = document.querySelector('.modal__overlay');
+
+    if (modal && modalOverlay) {
+      modal.style.display = 'none';
+      modalOverlay.style.display = 'none';
+      // Return focus to the element that had focus before the modal opened
+      if (priorFocus) {
+        priorFocus.focus();
+      }
+    }
   }
 
   // Appel des fonctions d'initialisation une fois que le DOM est prêt
@@ -100,3 +81,15 @@
     initModal();
   });
 })();
+
+document.addEventListener("DOMContentLoaded", function () {
+  const links = document.querySelectorAll('.social .ul a');
+  
+  links.forEach(function(link) {
+      link.addEventListener("click", function (event) {
+          event.preventDefault(); // Empêcher la redirection par défaut
+          const ariaLabel = this.querySelector('svg').getAttribute('aria-label');
+          alert(`Le lien ${ariaLabel} fonctionne!`); // Afficher un message d'alerte avec le aria-label
+      });
+  });
+});
